@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Моя Вселенная — Хадия 💖</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #020108;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        #webgl-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            cursor: grab;
+        }
+
+        #webgl-container:active {
+            cursor: grabbing;
+        }
+
+        /* Кинематографичная виньетка */
+        .vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+            background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(2, 1, 10, 0.78) 100%);
+        }
+
+        /* Слой интерфейса */
+        .ui-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.25rem;
+        }
+
+        /* Центральный романтический заголовок */
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            text-shadow: 0 8px 35px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 160, 220, 0.35);
+            letter-spacing: 0.02em;
+        }
+
+        .khadiya-gradient {
+            background: linear-gradient(120deg, #fff0f6 0%, #ffb3d9 35%, #ffd89b 70%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 6s linear infinite;
+            filter: drop-shadow(0 0 25px rgba(255, 120, 180, 0.45));
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        /* Парящие интерактивные капсулы с прозвищами */
+        .nickname-pill {
+            position: fixed;
+            pointer-events: auto;
+            z-index: 15;
+            padding: 10px 22px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.16), rgba(20, 12, 38, 0.68));
+            border: 1px solid rgba(255, 215, 240, 0.28);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+            color: #fff8fc;
+            font-size: 0.88rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+            will-change: transform;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .nickname-pill {
+                padding: 12px 26px;
+                font-size: 0.98rem;
+            }
+        }
+
+        .nickname-pill:hover, .nickname-pill.active-pill {
+            border-color: rgba(255, 165, 215, 0.9);
+            background: radial-gradient(circle at 30% 20%, rgba(255, 190, 230, 0.32), rgba(45, 18, 70, 0.82));
+            box-shadow: 0 0 28px rgba(255, 120, 195, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+            transform: scale(1.09) !important;
+        }
+
+        .pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+            display: inline-block;
+        }
+
+        /* Индивидуальные плавные орбиты капсул в UI */
+        .p-pos-1 { top: 13%; left: 6%; animation: floatA 11s ease-in-out infinite alternate; }
+        .p-pos-2 { top: 22%; right: 6%; animation: floatB 13s ease-in-out infinite alternate; }
+        .p-pos-3 { bottom: 26%; left: 7%; animation: floatC 12s ease-in-out infinite alternate; }
+        .p-pos-4 { bottom: 23%; right: 7%; animation: floatA 14s ease-in-out infinite alternate-reverse; }
+        .p-pos-5 { top: 8%; left: 50%; transform: translateX(-50%); animation: floatCenterTop 10s ease-in-out infinite alternate; }
+        .p-pos-6 { bottom: 13%; left: 50%; transform: translateX(-50%); animation: floatCenterBottom 12s ease-in-out infinite alternate; }
+
+        @keyframes floatA {
+            0% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+            100% { transform: translate3d(14px, -16px, 0) rotate(2deg); }
+        }
+        @keyframes floatB {
+            0% { transform: translate3d(0, 0, 0) rotate(1deg); }
+            100% { transform: translate3d(-16px, 14px, 0) rotate(-2deg); }
+        }
+        @keyframes floatC {
+            0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            100% { transform: translate3d(18px, 12px, 0) rotate(2deg); }
+        }
+        @keyframes floatCenterTop {
+            0% { transform: translate3d(-50%, 0, 0); }
+            100% { transform: translate3d(-50%, 12px, 0); }
+        }
+        @keyframes floatCenterBottom {
+            0% { transform: translate3d(-50%, 0, 0); }
+            100% { transform: translate3d(-50%, -12px, 0); }
+        }
+
+        /* Карточка признания при выборе прозвища / планеты */
+        .love-card {
+            pointer-events: auto;
+            background: linear-gradient(145deg, rgba(22, 12, 42, 0.84) 0%, rgba(10, 5, 22, 0.92) 100%);
+            border: 1px solid rgba(255, 195, 230, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(255, 120, 190, 0.2);
+            transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .love-card.hidden-card {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px) scale(0.96);
+        }
+
+        /* Частицы сердечек при клике */
+        .burst-heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 50;
+            font-size: 1.2rem;
+            will-change: transform, opacity;
+            animation: heartFly 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes heartFly {
+            0% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(0.4) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate3d(var(--tx), var(--ty), 0) scale(1.35) rotate(var(--rot));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Сцена Солнечной Системы -->
+    <div id="webgl-container"></div>
+    <div class="vignette"></div>
+
+    <!-- Парящие интерактивные ласковые прозвища -->
+    <button class="nickname-pill p-pos-1" data-target="venus" data-nick="Любимка" data-planet="Венера — Звезда Утренней Любви" data-msg="Ты сияешь ярче любой звезды на небосводе, моя нежная любимка. Каждое утро начинается с мысли о тебе.">
+        <span class="pill-dot" style="color: #ffd166; background: #ffd166;"></span>
+        <span>любимка</span>
+    </button>
+
+    <button class="nickname-pill p-pos-2" data-target="earth" data-nick="Жаным" data-planet="Земля — Наш Живой Мир" data-msg="Жаным, ты — моя душа, мой воздух и мой дом. Среди миллиардов галактик моё сердце бьётся только ради тебя.">
+        <span class="pill-dot" style="color: #4cc9f0; background: #4cc9f0;"></span>
+        <span>жаным</span>
+    </button>
+
+    <button class="nickname-pill p-pos-3" data-target="jupiter" data-nick="Какашечка" data-planet="Юпитер — Гигантское Сердце" data-msg="Даже когда ты вредничаешь, моя сладкая какашечка, моя любовь к тебе больше самой огромной планеты во Вселенной!">
+        <span class="pill-dot" style="color: #f4a261; background: #f4a261;"></span>
+        <span>какашечка</span>
+    </button>
+
+    <button class="nickname-pill p-pos-4" data-target="saturn" data-nick="Симпапулька" data-planet="Сатурн — Властелин Колец" data-msg="Моя ненаглядная симпапулька, твоя красота завораживает сильнее бриллиантовых колец Сатурна.">
+        <span class="pill-dot" style="color: #f9c74f; background: #f9c74f;"></span>
+        <span>симпапулька</span>
+    </button>
+
+    <button class="nickname-pill p-pos-5" data-target="sun" data-nick="Любимая" data-planet="Солнце — Центр Моей Жизни" data-msg="Любимая моя Хадия, как все планеты вращаются вокруг Солнца, так и весь мой мир крутится вокруг твоей улыбки.">
+        <span class="pill-dot" style="color: #ff5d8f; background: #ff5d8f;"></span>
+        <span>любимая</span>
+    </button>
+
+    <button class="nickname-pill p-pos-6" data-target="neptune" data-nick="Көтенім" data-planet="Нептун — Океан Нежности" data-msg="Көтенім моя сладкая, моя любовь к тебе глубока и бесконечна, как сапфировые космические океаны.">
+        <span class="pill-dot" style="color: #72efdd; background: #72efdd;"></span>
+        <span>көтенім</span>
+    </button>
+
+    <!-- Основной UI Слой -->
+    <div class="ui-layer">
+        <!-- Верхняя панель управления камерой -->
+        <div class="flex justify-between items-center w-full max-w-6xl mx-auto z-20">
+            <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-pink-200/80 tracking-widest uppercase">
+                <span class="w-2 h-2 rounded-full bg-pink-400 animate-ping"></span>
+                <span>Живая 3D Вселенная</span>
+            </div>
+
+            <button id="reset-cam-btn" class="pointer-events-auto hidden items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/20 hover:bg-pink-500/35 border border-pink-300/40 text-xs md:text-sm text-pink-100 transition">
+                <span>✦ Общий вид системы</span>
+            </button>
+        </div>
+
+        <!-- Центральное послание -->
+        <div id="center-hero" class="my-auto text-center px-3 transition-opacity duration-500">
+            <p class="text-xs md:text-sm uppercase tracking-[0.35em] text-pink-200/75 mb-2 font-light">
+                Среди миллиардов звёзд и галактик
+            </p>
+            <h1 class="hero-title text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold leading-tight">
+                Моя Вселенная — это ты,<br>
+                <span class="khadiya-gradient italic font-bold">Хадия 💖</span>
+            </h1>
+            <p class="mt-3 md:mt-4 text-xs sm:text-sm md:text-base text-white/75 max-w-lg mx-auto font-light leading-relaxed">
+                Вращай космос пальцем или мышкой и нажимай на ласковые слова, чтобы перелететь к планетам нашей любви
+            </p>
+        </div>
+
+        <!-- Всплывающая карточка при подлете к планете -->
+        <div class="w-full max-w-md mx-auto mb-2 z-20 flex flex-col items-center">
+            <div id="love-card" class="love-card hidden-card w-full rounded-3xl p-5 md:p-6 text-center relative">
+                <button id="close-card-btn" class="absolute top-3.5 right-4 text-white/50 hover:text-white text-lg leading-none px-2 py-1" aria-label="Закрыть">✕</button>
+                <div id="card-planet-tag" class="text-[11px] uppercase tracking-[0.25em] text-amber-300/90 mb-1 font-medium">
+                    Солнце — Центр Моей Жизни
+                </div>
+                <h2 id="card-nick-title" class="hero-title text-3xl md:text-4xl text-pink-200 italic font-semibold mb-2">
+                    Любимая Хадия
+                </h2>
+                <p id="card-love-msg" class="text-sm md:text-base text-white/90 font-light leading-relaxed">
+                    Как все планеты вращаются вокруг Солнца, так и весь мой мир крутится вокруг твоей улыбки.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * УЛЬТРА-РЕАЛИСТИЧНАЯ 3D СОЛНЕЧНАЯ СИСТЕМА ДЛЯ ХАДИИ
+         * - Процедурная генерация текстур высокого разрешения (эквиректангулярные карты + карты рельефа/океанов)
+         * - Кастомный GLSL-шейдер кипящей солнечной плазмы, протуберанцев и короны
+         * - Атмосферное свечение Френеля (Земля, Венера, Юпитер, Сатурн, Уран, Нептун)
+         * - 3D-освещение с мягкими терминаторами, наклоном осей и кольцами Сатурна с щелью Кассини
+         * - Оптимизировано для мобильных телефонов (60 FPS)
+         */
+
+        window.addEventListener('load', () => {
+            const container = document.getElementById('webgl-container');
+
+            // 1. Инициализация сцены, камеры и рендерера с ограничением DPR для плавности на телефонах
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+            
+            const isMobile = window.innerWidth < 768;
+            const defaultCamRadius = isMobile ? 132 : 98;
+            
+            const renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.65));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.15;
+            container.appendChild(renderer.domElement);
+
+            // 2. Быстрый детерминированный генератор шума для создания реалистичных текстур планет
+            function fract(x) { return x - Math.floor(x); }
+            function hash2(x, y) {
+                return fract(Math.sin(x * 127.1 + y * 311.7) * 43758.5453123);
+            }
+            function lerp(a, b, t) { return a + (b - a) * t; }
+            function smooth(t) { return t * t * (3 - 2 * t); }
+
+            function valueNoise(x, y) {
+                const ix = Math.floor(x);
+                const iy = Math.floor(y);
+                const fx = smooth(x - ix);
+                const fy = smooth(y - iy);
+                const a = hash2(ix, iy);
+                const b = hash2(ix + 1, iy);
+                const c = hash2(ix, iy + 1);
+                const d = hash2(ix + 1, iy + 1);
+                return lerp(lerp(a, b, fx), lerp(c, d, fx), fy);
+            }
+
+            function fbm(x, y, octaves = 4) {
+                let val = 0;
+                let amp = 0.5;
+                let freq = 1;
+                for (let i = 0; i < octaves; i++) {
+                    val += amp * valueNoise(x * freq, y * freq);
+                    freq *= 2.03;
+                    amp *= 0.5;
+                }
+                return val;
+            }
+
+            // Генератор радиального свечения (для короны Солнца и звезд)
+            function createGlowTexture(colorStops) {
+                const c = document.createElement('canvas');
+                c.width = 256;
+                c.height = 256;
+                const ctx = c.getContext('2d');
+                const grad = ctx.createRadialGradient(128, 128, 2, 128, 128, 128);
+                colorStops.forEach(([stop, col]) => grad.addColorStop(stop, col));
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 256, 256);
+                return new THREE.CanvasTexture(c);
+            }
+
+            // 3. Генератор процедурных фотореалистичных карт планет (Диффузная + Рельеф/Блики)
+            function generatePlanetMaps(type) {
+                const w = 512;
+                const h = 256;
+                const diffCanvas = document.createElement('canvas');
+                diffCanvas.width = w;
+                diffCanvas.height = h;
+                const dCtx = diffCanvas.getContext('2d');
+                const dImg = dCtx.createImageData(w, h);
+
+                const bumpCanvas = document.createElement('canvas');
+                bumpCanvas.width = w;
+                bumpCanvas.height = h;
+                const bCtx = bumpCanvas.getContext('2d');
+                const bImg = bCtx.createImageData(w, h);
+
+                const specCanvas = document.createElement('canvas');
+                specCanvas.width = w;
+                specCanvas.height = h;
+                const sCtx = specCanvas.getContext('2d');
+                const sImg = sCtx.createImageData(w, h);
+
+                for (let y = 0; y < h; y++) {
+                    const v = y / h; // 0..1 (от полюса к полюсу)
+                    const lat = Math.abs(v - 0.5) * 2.0; // 0 на экваторе, 1 на полюсах
+
+                    for (let x = 0; x < w; x++) {
+                        const u = x / w;
+                        const idx = (y * w + x) * 4;
+                        // Бесшовные координаты по горизонтали
+                        const angle = u * Math.PI * 2;
+                        const nx = Math.cos(angle) * 2.2 + 10.5;
+                        const nz = Math.sin(angle) * 2.2 + 10.5;
+                        const ny = v * 4.4;
+
+                        let r = 128, g = 128, b = 128, bump = 128, spec = 0;
+
+                        if (type === 'mercury') {
+                            const n = fbm(nx * 2.5, ny * 2.5 + nz, 5);
+                            // Кратеры
+                            const crater = Math.pow(Math.sin(n * 18) * 0.5 + 0.5, 3);
+                            const shade = 85 + n * 95 - crater * 32;
+                            r = shade * 1.04;
+                            g = shade * 0.99;
+                            b = shade * 0.94;
+                            bump = Math.max(0, Math.min(255, shade * 1.3));
+                        } else if (type === 'venus') {
+                            const swirl = fbm(nx * 1.8 + Math.sin(v * 8) * 0.6, ny * 2.2, 5);
+                            const bands = Math.sin(v * 22 + swirl * 5) * 0.5 + 0.5;
+                            const mix = swirl * 0.7 + bands * 0.3;
+                            r = lerp(195, 250, mix);
+                            g = lerp(135, 205, mix);
+                            b = lerp(65, 130, mix);
+                            bump = mix * 180;
+                        } else if (type === 'earth') {
+                            const cont = fbm(nx * 1.65, ny * 1.65 + nz * 0.7, 5);
+                            const detail = fbm(nx * 6, ny * 6, 3);
+                            const clouds = fbm(nx * 2.8 + 5, ny * 2.8 + 3, 4);
+
+                            if (lat > 0.84 - detail * 0.08) {
+                                // Полярные шапки
+                                r = 240; g = 248; b = 255;
+                                bump = 190;
+                                spec = 60;
+                            } else if (cont < 0.49) {
+                                // Глубокий океан и мелководье
+                                const depth = cont / 0.49;
+                                r = lerp(8, 28, depth * depth);
+                                g = lerp(38, 115, depth);
+                                b = lerp(95, 195, depth);
+                                bump = 20;
+                                spec = 230; // Океан ярко бликует от Солнца
+                            } else {
+                                // Материки: леса, пустыни и горы
+                                const landH = (cont - 0.49) / 0.51;
+                                const desert = Math.max(0, 1 - Math.abs(lat - 0.32) * 4.5) * detail;
+                                r = lerp(34, 185, desert);
+                                g = lerp(108, 155, desert * 0.8 + landH * 0.2);
+                                b = lerp(38, 88, desert);
+                                if (landH > 0.42) {
+                                    // Горные хребты
+                                    r = lerp(r, 140, (landH - 0.42) * 1.6);
+                                    g = lerp(g, 130, (landH - 0.42) * 1.6);
+                                    b = lerp(b, 120, (landH - 0.42) * 1.6);
+                                }
+                                bump = 90 + landH * 165;
+                                spec = 12;
+                            }
+
+                            // Атмосферные облачные вихри поверх Земли
+                            if (clouds > 0.53) {
+                                const cAlpha = Math.min(1, (clouds - 0.53) * 3.2);
+                                r = lerp(r, 255, cAlpha * 0.9);
+                                g = lerp(g, 255, cAlpha * 0.9);
+                                b = lerp(b, 255, cAlpha * 0.92);
+                                bump = lerp(bump, 235, cAlpha);
+                                spec = lerp(spec, 30, cAlpha);
+                            }
+                        } else if (type === 'mars') {
+                            const n = fbm(nx * 2.1, ny * 2.1 + nz, 5);
+                            const darkBasin = fbm(nx * 1.2 + 4, ny * 1.2, 4);
+                            if (lat > 0.89 - n * 0.05) {
+                                r = 238; g = 232; b = 228;
+                                bump = 200;
+                            } else {
+                                const rust = n * 0.75 + (1 - darkBasin) * 0.25;
+                                r = lerp(115, 228, rust);
+                                g = lerp(45, 108, rust);
+                                b = lerp(25, 62, rust);
+                                bump = 50 + n * 200;
+                            }
+                        } else if (type === 'jupiter') {
+                            const turb = fbm(nx * 3.0, ny * 5.0 + nz, 4) * 0.06;
+                            const bandPos = v + turb;
+                            const b1 = Math.sin(bandPos * 38);
+                            const b2 = Math.cos(bandPos * 19 + turb * 12);
+
+                            // Палитра поясов Юпитера: кремовый, терракотовый, охристый, кофейный
+                            const t = (b1 * 0.55 + b2 * 0.45) * 0.5 + 0.5;
+                            r = lerp(145, 244, t);
+                            g = lerp(95, 222, t);
+                            b = lerp(65, 190, t);
+
+                            // Большое Красное Пятно
+                            const spotDx = (u - 0.55) * 3.8;
+                            const spotDy = (v - 0.64) * 8.5;
+                            const spotDist = Math.sqrt(spotDx * spotDx + spotDy * spotDy);
+                            if (spotDist < 0.45) {
+                                const sMix = Math.cos((spotDist / 0.45) * Math.PI * 0.5);
+                                r = lerp(r, 215, sMix);
+                                g = lerp(g, 74, sMix);
+                                b = lerp(b, 48, sMix);
+                            }
+                            bump = 100 + t * 90;
+                        } else if (type === 'saturn') {
+                            const turb = fbm(nx * 2.0, ny * 4.0, 3) * 0.03;
+                            const band = Math.sin((v + turb) * 44) * 0.5 + 0.5;
+                            const soft = Math.cos(v * 14) * 0.5 + 0.5;
+                            const mix = band * 0.55 + soft * 0.45;
+                            r = lerp(188, 246, mix);
+                            g = lerp(155, 218, mix);
+                            b = lerp(102, 162, mix);
+                            bump = 110 + mix * 60;
+                        } else if (type === 'uranus') {
+                            const band = Math.sin(v * 18 + fbm(nx, ny, 2) * 0.3) * 0.5 + 0.5;
+                            r = lerp(110, 175, band);
+                            g = lerp(215, 244, band);
+                            b = lerp(228, 252, band);
+                            bump = 128;
+                        } else if (type === 'neptune') {
+                            const storm = fbm(nx * 2.5, ny * 4.5, 4);
+                            const band = Math.sin(v * 26 + storm * 1.5) * 0.5 + 0.5;
+                            r = lerp(22, 68, band);
+                            g = lerp(58, 132, band);
+                            b = lerp(168, 248, band);
+                            if (storm > 0.66) {
+                                // Высотные метановые белые облака
+                                const c = (storm - 0.66) * 2.8;
+                                r = lerp(r, 210, c);
+                                g = lerp(g, 235, c);
+                                b = lerp(b, 255, c);
+                            }
+                            bump = 110 + storm * 80;
+                        }
+
+                        dImg.data[idx] = r;
+                        dImg.data[idx + 1] = g;
+                        dImg.data[idx + 2] = b;
+                        dImg.data[idx + 3] = 255;
+
+                        bImg.data[idx] = bump;
+                        bImg.data[idx + 1] = bump;
+                        bImg.data[idx + 2] = bump;
+                        bImg.data[idx + 3] = 255;
+
+                        sImg.data[idx] = spec;
+                        sImg.data[idx + 1] = spec;
+                        sImg.data[idx + 2] = spec;
+                        sImg.data[idx + 3] = 255;
+                    }
+                }
+
+                dCtx.putImageData(dImg, 0, 0);
+                bCtx.putImageData(bImg, 0, 0);
+                sCtx.putImageData(sImg, 0, 0);
+
+                const diffTex = new THREE.CanvasTexture(diffCanvas);
+                diffTex.wrapS = THREE.RepeatWrapping;
+                diffTex.wrapT = THREE.ClampToEdgeWrapping;
+
+                const bumpTex = new THREE.CanvasTexture(bumpCanvas);
+                bumpTex.wrapS = THREE.RepeatWrapping;
+                bumpTex.wrapT = THREE.ClampToEdgeWrapping;
+
+                const specTex = new THREE.CanvasTexture(specCanvas);
+                specTex.wrapS = THREE.RepeatWrapping;
+                specTex.wrapT = THREE.ClampToEdgeWrapping;
+
+                return { diffTex, bumpTex, specTex };
+            }
+
+            // 4. Шейдер атмосферного свечения Френеля (ореол вокруг планет)
+            function createAtmosphereMesh(radius, colorHex, intensity = 1.1) {
+                const geo = new THREE.SphereGeometry(radius * 1.045, 40, 40);
+                const mat = new THREE.ShaderMaterial({
+                    uniforms: {
+                        glowColor: { value: new THREE.Color(colorHex) },
+                        intensity: { value: intensity }
+                    },
+                    vertexShader: `
+                        varying vec3 vNormal;
+                        varying vec3 vViewPos;
+                        void main() {
+                            vNormal = normalize(normalMatrix * normal);
+                            vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+                            vViewPos = -mvPos.xyz;
+                            gl_Position = projectionMatrix * mvPos;
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform vec3 glowColor;
+                        uniform float intensity;
+                        varying vec3 vNormal;
+                        varying vec3 vViewPos;
+                        void main() {
+                            vec3 viewDir = normalize(vViewPos);
+                            float fresnel = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 3.2);
+                            gl_FragColor = vec4(glowColor, fresnel * intensity);
+                        }
+                    `,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.FrontSide,
+                    depthWrite: false
+                });
+                return new THREE.Mesh(geo, mat);
+            }
+
+            // 5. СОЗДАНИЕ УЛЬТРА-РЕАЛИСТИЧНОГО СОЛНЦА С КИПЯЩЕЙ ПЛАЗМОЙ (GLSL SHADER)
+            const solarSystemGroup = new THREE.Group();
+            scene.add(solarSystemGroup);
+
+            const sunRadius = 9.2;
+            const sunGeo = new THREE.SphereGeometry(sunRadius, 64, 64);
+            const sunUniforms = {
+                uTime: { value: 0 }
+            };
+
+            const sunMat = new THREE.ShaderMaterial({
+                uniforms: sunUniforms,
+                vertexShader: `
+                    varying vec3 vNormal;
+                    varying vec3 vPos;
+                    varying vec3 vViewDir;
+                    void main() {
+                        vNormal = normalize(normalMatrix * normal);
+                        vPos = position;
+                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                        vViewDir = normalize(-mvPosition.xyz);
+                        gl_Position = projectionMatrix * mvPosition;
+                    }
+                `,
+                fragmentShader: `
+                    uniform float uTime;
+                    varying vec3 vNormal;
+                    varying vec3 vPos;
+                    varying vec3 vViewDir;
+
+                    // Быстрый 3D шум для солнечной конвекции и вспышек
+                    float hash(vec3 p) {
+                        p = fract(p * 0.3183099 + 0.1);
+                        p *= 17.0;
+                        return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+                    }
+
+                    float noise(vec3 x) {
+                        vec3 i = floor(x);
+                        vec3 f = fract(x);
+                        f = f * f * (3.0 - 2.0 * f);
+                        return mix(
+                            mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+                                mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                            mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+                    }
+
+                    float fbm(vec3 p) {
+                        float v = 0.0;
+                        float a = 0.5;
+                        for (int i = 0; i < 5; i++) {
+                            v += a * noise(p);
+                            p = p * 2.05 + vec3(uTime * 0.12, -uTime * 0.09, uTime * 0.07);
+                            a *= 0.5;
+                        }
+                        return v;
+                    }
+
+                    void main() {
+                        vec3 p = normalize(vPos) * 3.8;
+                        float n1 = fbm(p + vec3(uTime * 0.08));
+                        float n2 = fbm(p * 2.4 - vec3(uTime * 0.14));
+                        float plasma = n1 * 0.65 + n2 * 0.35;
+
+                        // Цветовая температура солнечной фотосферы
+                        vec3 darkSpot = vec3(0.75, 0.14, 0.02);
+                        vec3 midOrange = vec3(1.0, 0.45, 0.04);
+                        vec3 brightGold = vec3(1.0, 0.85, 0.32);
+                        vec3 whiteHot = vec3(1.0, 0.99, 0.92);
+
+                        vec3 col = mix(darkSpot, midOrange, smoothstep(0.22, 0.48, plasma));
+                        col = mix(col, brightGold, smoothstep(0.48, 0.72, plasma));
+                        col = mix(col, whiteHot, smoothstep(0.72, 0.92, plasma));
+
+                        // Потемнение к краю диска + огненный ободок хромосферы
+                        float ndotv = max(dot(vNormal, vViewDir), 0.0);
+                        float limb = pow(ndotv, 0.42);
+                        float rim = pow(1.0 - ndotv, 3.0);
+
+                        col *= (0.78 + 0.35 * limb);
+                        col += vec3(1.0, 0.38, 0.08) * rim * 1.35;
+
+                        gl_FragColor = vec4(col, 1.0);
+                    }
+                `
+            });
+
+            const sunMesh = new THREE.Mesh(sunGeo, sunMat);
+            solarSystemGroup.add(sunMesh);
+
+            // Многослойная солнечная корона (Sprite свечение)
+            const coronaTex = createGlowTexture([
+                [0.0, 'rgba(255, 255, 240, 1)'],
+                [0.18, 'rgba(255, 210, 110, 0.88)'],
+                [0.42, 'rgba(255, 115, 30, 0.42)'],
+                [0.72, 'rgba(180, 40, 80, 0.12)'],
+                [1.0, 'rgba(0, 0, 0, 0)']
+            ]);
+            const coronaSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: coronaTex,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                depthWrite: false
+            }));
+            coronaSprite.scale.set(sunRadius * 5.2, sunRadius * 5.2, 1);
+            sunMesh.add(coronaSprite);
+
+            // Источники света от Солнца
+            const sunLight = new THREE.PointLight(0xfff6e5, 2.5, 450, 0.35);
+            scene.add(sunLight);
+
+            // Мягкая подсветка космоса, чтобы ночные стороны планет имели деликатный силуэт
+            const ambientLight = new THREE.AmbientLight(0x281e46, 0.48);
+            scene.add(ambientLight);
+
+            // 6. СОЗДАНИЕ ВСЕХ 8 ФОТОРЕАЛИСТИЧНЫХ ПЛАНЕТ, ИХ СПУТНИКОВ И КОЛЕЦ
+            const planetsData = [
+                { key: 'mercury', radius: 1.05, dist: 15, speed: 0.48, rotSpeed: 0.008, tilt: 0.03, shininess: 8, bumpScale: 0.12 },
+                { key: 'venus',   radius: 1.85, dist: 21, speed: 0.35, rotSpeed: -0.005, tilt: 0.06, shininess: 18, bumpScale: 0.06, atmo: 0xffcc77, atmoInt: 0.85 },
+                { key: 'earth',   radius: 2.15, dist: 29, speed: 0.26, rotSpeed: 0.018, tilt: 0.41, shininess: 55, bumpScale: 0.11, atmo: 0x48a9ff, atmoInt: 1.15, hasMoon: true },
+                { key: 'mars',    radius: 1.45, dist: 37, speed: 0.20, rotSpeed: 0.016, tilt: 0.44, shininess: 10, bumpScale: 0.16, atmo: 0xff7b47, atmoInt: 0.45 },
+                { key: 'jupiter', radius: 4.55, dist: 52, speed: 0.12, rotSpeed: 0.032, tilt: 0.06, shininess: 16, bumpScale: 0.05, atmo: 0xf4b982, atmoInt: 0.55 },
+                { key: 'saturn',  radius: 3.85, dist: 69, speed: 0.085, rotSpeed: 0.028, tilt: 0.47, shininess: 18, bumpScale: 0.04, atmo: 0xffe099, atmoInt: 0.55, hasRings: true },
+                { key: 'uranus',  radius: 2.65, dist: 84, speed: 0.06, rotSpeed: -0.022, tilt: 1.45, shininess: 22, bumpScale: 0.02, atmo: 0x72efdd, atmoInt: 0.75, hasThinRing: true },
+                { key: 'neptune', radius: 2.55, dist: 97, speed: 0.045, rotSpeed: 0.024, tilt: 0.49, shininess: 28, bumpScale: 0.04, atmo: 0x3a86ff, atmoInt: 0.95 }
+            ];
+
+            const planetObjects = {
+                sun: { mesh: sunMesh, radius: sunRadius, dist: 0, angle: 0, speed: 0 }
+            };
+
+            // Генератор текстуры многослойных колец Сатурна с делением Кассини
+            function createSaturnRingTexture() {
+                const c = document.createElement('canvas');
+                c.width = 512;
+                c.height = 64;
+                const ctx = c.getContext('2d');
+                const img = ctx.createImageData(512, 64);
+
+                for (let x = 0; x < 512; x++) {
+                    const t = x / 512; // 0 = внутренний край, 1 = внешний край
+                    let alpha = 0;
+                    let r = 225, g = 198, b = 156;
+
+                    if (t > 0.08 && t < 0.95) {
+                        const fineWaves = Math.sin(t * 210) * 0.15 + Math.cos(t * 85) * 0.2 + 0.65;
+                        alpha = fineWaves * 0.88;
+
+                        // Щель Кассини (темный промежуток)
+                        if (t > 0.61 && t < 0.67) {
+                            alpha *= 0.12;
+                        }
+                        // Внутреннее полупрозрачное кольцо C
+                        if (t < 0.25) {
+                            alpha *= (t - 0.08) / 0.17 * 0.5;
+                        }
+                        // Внешнее затухание
+                        if (t > 0.88) {
+                            alpha *= (0.95 - t) / 0.07;
+                        }
+
+                        r = lerp(185, 245, fineWaves);
+                        g = lerp(160, 218, fineWaves);
+                        b = lerp(120, 172, fineWaves);
+                    }
+
+                    for (let y = 0; y < 64; y++) {
+                        const idx = (y * 512 + x) * 4;
+                        img.data[idx] = r;
+                        img.data[idx + 1] = g;
+                        img.data[idx + 2] = b;
+                        img.data[idx + 3] = Math.floor(alpha * 255);
+                    }
+                }
+                ctx.putImageData(img, 0, 0);
+                return new THREE.CanvasTexture(c);
+            }
+
+            planetsData.forEach((p, index) => {
+                // Тонкая элегантная линия орбиты
+                const orbitCurve = new THREE.EllipseCurve(0, 0, p.dist, p.dist, 0, Math.PI * 2, false, 0);
+                const orbitPoints = orbitCurve.getPoints(128);
+                const orbitGeo = new THREE.BufferGeometry().setFromPoints(
+                    orbitPoints.map(pt => new THREE.Vector3(pt.x, 0, pt.y))
+                );
+                const orbitMat = new THREE.LineBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.11
+                });
+                const orbitLine = new THREE.LineLoop(orbitGeo, orbitMat);
+                solarSystemGroup.add(orbitLine);
+
+                // Создание карт текстур для планеты
+                const { diffTex, bumpTex, specTex } = generatePlanetMaps(p.key);
+
+                const pGeo = new THREE.SphereGeometry(p.radius, 48, 48);
+                const pMat = new THREE.MeshPhongMaterial({
+                    map: diffTex,
+                    bumpMap: bumpTex,
+                    bumpScale: p.bumpScale,
+                    specularMap: p.key === 'earth' ? specTex : null,
+                    specular: new THREE.Color(p.key === 'earth' ? 0x99ccff : 0x222222),
+                    shininess: p.shininess
+                });
+
+                const pivotGroup = new THREE.Group();
+                solarSystemGroup.add(pivotGroup);
+
+                const planetMesh = new THREE.Mesh(pGeo, pMat);
+                planetMesh.rotation.z = p.tilt;
+                pivotGroup.add(planetMesh);
+
+                // Добавление атмосферного свечения Френеля
+                if (p.atmo) {
+                    const atmoMesh = createAtmosphereMesh(p.radius, p.atmo, p.atmoInt);
+                    pivotGroup.add(atmoMesh);
+                }
+
+                // Добавление Луны для Земли
+                let moonMesh = null;
+                if (p.hasMoon) {
+                    const moonMaps = generatePlanetMaps('mercury');
+                    const mGeo = new THREE.SphereGeometry(0.52, 24, 24);
+                    const mMat = new THREE.MeshPhongMaterial({
+                        map: moonMaps.diffTex,
+                        bumpMap: moonMaps.bumpTex,
+                        bumpScale: 0.08,
+                        shininess: 5
+                    });
+                    moonMesh = new THREE.Mesh(mGeo, mMat);
+                    pivotGroup.add(moonMesh);
+                }
+
+                // Добавление роскошных колец Сатурна с правильными UV
+                if (p.hasRings) {
+                    const innerR = p.radius * 1.32;
+                    const outerR = p.radius * 2.45;
+                    const ringGeo = new THREE.RingGeometry(innerR, outerR, 96);
+                    const pos = ringGeo.attributes.position;
+                    const uvs = ringGeo.attributes.uv;
+                    for (let i = 0; i < pos.count; i++) {
+                        const vx = pos.getX(i);
+                        const vy = pos.getY(i);
+                        const len = Math.sqrt(vx * vx + vy * vy);
+                        const u = (len - innerR) / (outerR - innerR);
+                        uvs.setXY(i, u, 0.5);
+                    }
+                    const ringMat = new THREE.MeshPhongMaterial({
+                        map: createSaturnRingTexture(),
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        shininess: 25
+                    });
+                    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+                    ringMesh.rotation.x = Math.PI / 2 - 0.38;
+                    ringMesh.rotation.y = 0.2;
+                    pivotGroup.add(ringMesh);
+                }
+
+                // Тонкое ледяное кольцо для Урана
+                if (p.hasThinRing) {
+                    const uRingGeo = new THREE.RingGeometry(p.radius * 1.45, p.radius * 1.58, 64);
+                    const uRingMat = new THREE.MeshBasicMaterial({
+                        color: 0x99f6ff,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        opacity: 0.28
+                    });
+                    const uRing = new THREE.Mesh(uRingGeo, uRingMat);
+                    uRing.rotation.y = Math.PI / 2;
+                    pivotGroup.add(uRing);
+                }
+
+                // Начальный угол расположения планет для красивой композиции
+                const startAngles = [0.8, 2.3, 4.1, 5.5, 1.4, 3.4, 5.0, 0.3];
+                const startAngle = startAngles[index];
+
+                planetObjects[p.key] = {
+                    pivot: pivotGroup,
+                    mesh: planetMesh,
+                    moon: moonMesh,
+                    radius: p.radius,
+                    dist: p.dist,
+                    angle: startAngle,
+                    speed: p.speed,
+                    rotSpeed: p.rotSpeed
+                };
+            });
+
+            // 7. ПОЯС АСТЕРОИДОВ И МНОГОСЛОЙНОЕ ЗВЕЗДНОЕ НЕБО С ТУМАННОСТЬЮ
+            const asteroidCount = isMobile ? 450 : 900;
+            const astGeo = new THREE.BufferGeometry();
+            const astPositions = new Float32Array(asteroidCount * 3);
+            const astColors = new Float32Array(asteroidCount * 3);
+
+            for (let i = 0; i < asteroidCount; i++) {
+                const r = 43.2 + Math.random() * 4.2;
+                const theta = Math.random() * Math.PI * 2;
+                const y = (Math.random() - 0.5) * 1.8;
+                astPositions[i * 3] = Math.cos(theta) * r;
+                astPositions[i * 3 + 1] = y;
+                astPositions[i * 3 + 2] = Math.sin(theta) * r;
+
+                const shade = 0.55 + Math.random() * 0.35;
+                astColors[i * 3] = shade * 1.05;
+                astColors[i * 3 + 1] = shade * 0.95;
+                astColors[i * 3 + 2] = shade * 0.88;
+            }
+            astGeo.setAttribute('position', new THREE.BufferAttribute(astPositions, 3));
+            astGeo.setAttribute('color', new THREE.BufferAttribute(astColors, 3));
+
+            const starDotTex = createGlowTexture([
+                [0.0, 'rgba(255,255,255,1)'],
+                [0.4, 'rgba(255,255,255,0.8)'],
+                [1.0, 'rgba(255,255,255,0)']
+            ]);
+
+            const astPoints = new THREE.Points(astGeo, new THREE.PointsMaterial({
+                size: 0.55,
+                map: starDotTex,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.75,
+                depthWrite: false
+            }));
+            solarSystemGroup.add(astPoints);
+
+            // Далекие звезды космоса
+            const starCount = isMobile ? 1600 : 3200;
+            const starsGeo = new THREE.BufferGeometry();
+            const starPos = new Float32Array(starCount * 3);
+            const starCols = new Float32Array(starCount * 3);
+            const palette = [
+                new THREE.Color(0xffffff),
+                new THREE.Color(0xffd6ec),
+                new THREE.Color(0xcce6ff),
+                new THREE.Color(0xffe8b3)
+            ];
+
+            for (let i = 0; i < starCount; i++) {
+                const rad = 220 + Math.random() * 350;
+                const u = Math.random();
+                const v = Math.random();
+                const theta = u * 2.0 * Math.PI;
+                const phi = Math.acos(2.0 * v - 1.0);
+
+                starPos[i * 3] = rad * Math.sin(phi) * Math.cos(theta);
+                starPos[i * 3 + 1] = rad * Math.sin(phi) * Math.sin(theta);
+                starPos[i * 3 + 2] = rad * Math.cos(phi);
+
+                const col = palette[Math.floor(Math.random() * palette.length)];
+                starCols[i * 3] = col.r;
+                starCols[i * 3 + 1] = col.g;
+                starCols[i * 3 + 2] = col.b;
+            }
+            starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+            starsGeo.setAttribute('color', new THREE.BufferAttribute(starCols, 3));
+
+            const starField = new THREE.Points(starsGeo, new THREE.PointsMaterial({
+                size: 1.6,
+                map: starDotTex,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.9,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            }));
+            scene.add(starField);
+
+            // 8. ИНТЕРАКТИВНАЯ КАМЕРА (ВРАЩЕНИЕ ПАЛЬЦЕМ / МЫШЬЮ + ПЛАВНЫЙ ПОДЛЕТ К ПЛАНЕТАМ)
+            let camTheta = 0.55;
+            let camPhi = 1.08; // Наклон сверху для красивого обзора орбит
+            let targetTheta = camTheta;
+            let targetPhi = camPhi;
+            let currentRadius = defaultCamRadius;
+            let targetRadius = defaultCamRadius;
+
+            let focusedKey = null;
+            const currentLookAt = new THREE.Vector3(0, 0, 0);
+            const targetLookAt = new THREE.Vector3(0, 0, 0);
+
+            let isDragging = false;
+            let prevX = 0;
+            let prevY = 0;
+
+            function onPointerDown(x, y) {
+                isDragging = true;
+                prevX = x;
+                prevY = y;
+            }
+
+            function onPointerMove(x, y) {
+                if (!isDragging) return;
+                const dx = x - prevX;
+                const dy = y - prevY;
+                prevX = x;
+                prevY = y;
+
+                targetTheta -= dx * 0.0065;
+                targetPhi = Math.max(0.28, Math.min(Math.PI - 0.28, targetPhi - dy * 0.0065));
+            }
+
+            function onPointerUp() {
+                isDragging = false;
+            }
+
+            container.addEventListener('mousedown', e => onPointerDown(e.clientX, e.clientY));
+            window.addEventListener('mousemove', e => onPointerMove(e.clientX, e.clientY));
+            window.addEventListener('mouseup', onPointerUp);
+
+            container.addEventListener('touchstart', e => {
+                if (e.touches.length === 1) {
+                    onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', e => {
+                if (e.touches.length === 1) {
+                    onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchend', onPointerUp);
+
+            // Масштабирование колесиком мыши
+            window.addEventListener('wheel', e => {
+                const minR = focusedKey ? planetObjects[focusedKey].radius * 2.8 : 28;
+                const maxR = 175;
+                targetRadius = Math.max(minR, Math.min(maxR, targetRadius + e.deltaY * 0.05));
+            }, { passive: true });
+
+            // 9. ИНТЕРАКТИВНЫЕ ПРОЗВИЩА, ЭФФЕКТ СЕРДЕЧЕК И ПЕРЕЛЕТ КАМЕРЫ
+            const pills = document.querySelectorAll('.nickname-pill');
+            const loveCard = document.getElementById('love-card');
+            const cardPlanetTag = document.getElementById('card-planet-tag');
+            const cardNickTitle = document.getElementById('card-nick-title');
+            const cardLoveMsg = document.getElementById('card-love-msg');
+            const resetCamBtn = document.getElementById('reset-cam-btn');
+            const closeCardBtn = document.getElementById('close-card-btn');
+            const centerHero = document.getElementById('center-hero');
+
+            function spawnStardustHearts(x, y) {
+                const symbols = ['💖', '✨', '💗', '🌸', '💫'];
+                for (let i = 0; i < 12; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'burst-heart';
+                    el.textContent = symbols[i % symbols.length];
+                    el.style.left = `${x}px`;
+                    el.style.top = `${y}px`;
+
+                    const angle = (Math.PI * 2 * i) / 12 + (Math.random() - 0.5) * 0.4;
+                    const dist = 45 + Math.random() * 85;
+                    el.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+                    el.style.setProperty('--ty', `${Math.sin(angle) * dist - 25}px`);
+                    el.style.setProperty('--rot', `${(Math.random() - 0.5) * 70}deg`);
+
+                    document.body.appendChild(el);
+                    setTimeout(() => el.remove(), 1150);
+                }
+            }
+
+            function focusOnPlanet(key, nick, planetTitle, msg) {
+                const targetObj = planetObjects[key];
+                if (!targetObj) return;
+
+                focusedKey = key;
+                targetRadius = key === 'sun' ? targetObj.radius * 3.1 : targetObj.radius * 4.2;
+                targetPhi = 1.28;
+
+                cardPlanetTag.textContent = planetTitle;
+                cardNickTitle.textContent = `${nick}, моя Хадия 💖`;
+                cardLoveMsg.textContent = msg;
+
+                loveCard.classList.remove('hidden-card');
+                resetCamBtn.classList.remove('hidden');
+                resetCamBtn.classList.add('flex');
+                centerHero.style.opacity = isMobile ? '0.18' : '0.35';
+            }
+
+            function resetOverview() {
+                focusedKey = null;
+                targetRadius = window.innerWidth < 768 ? 132 : 98;
+                targetPhi = 1.08;
+                targetLookAt.set(0, 0, 0);
+
+                loveCard.classList.add('hidden-card');
+                resetCamBtn.classList.add('hidden');
+                resetCamBtn.classList.remove('flex');
+                centerHero.style.opacity = '1';
+                pills.forEach(p => p.classList.remove('active-pill'));
+            }
+
+            pills.forEach(pill => {
+                pill.addEventListener('click', e => {
+                    const rect = pill.getBoundingClientRect();
+                    const cx = e.clientX || (rect.left + rect.width / 2);
+                    const cy = e.clientY || (rect.top + rect.height / 2);
+                    spawnStardustHearts(cx, cy);
+
+                    pills.forEach(p => p.classList.remove('active-pill'));
+                    pill.classList.add('active-pill');
+
+                    focusOnPlanet(
+                        pill.dataset.target,
+                        pill.dataset.nick,
+                        pill.dataset.planet,
+                        pill.dataset.msg
+                    );
+                });
+            });
+
+            resetCamBtn.addEventListener('click', resetOverview);
+            closeCardBtn.addEventListener('click', resetOverview);
+
+            // 10. ГЛАВНЫЙ ЦИКЛ АНИМАЦИИ (60 FPS)
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                const delta = Math.min(clock.getDelta(), 0.1);
+                const elapsed = clock.getElapsedTime();
+
+                // Обновление кипящей плазмы Солнца
+                sunUniforms.uTime.value = elapsed;
+                sunMesh.rotation.y += 0.002;
+
+                // Мягкое дыхание солнечной короны
+                const coronaScale = sunRadius * (5.15 + Math.sin(elapsed * 2.2) * 0.18);
+                coronaSprite.scale.set(coronaScale, coronaScale, 1);
+
+                // Вращение планет вокруг Солнца и вокруг своей оси
+                Object.keys(planetObjects).forEach(key => {
+                    if (key === 'sun') return;
+                    const p = planetObjects[key];
+
+                    // При фокусировке на планете замедляем её движение по орбите в 4 раза для комфортного обзора
+                    const speedFactor = (focusedKey === key) ? 0.22 : 1.0;
+                    p.angle += p.speed * delta * speedFactor;
+
+                    const px = Math.cos(p.angle) * p.dist;
+                    const pz = Math.sin(p.angle) * p.dist;
+                    p.pivot.position.set(px, 0, pz);
+
+                    // Осевое вращение планеты
+                    p.mesh.rotation.y += p.rotSpeed;
+
+                    // Вращение Луны вокруг Земли
+                    if (p.moon) {
+                        const moonAngle = elapsed * 1.4;
+                        p.moon.position.set(
+                            Math.cos(moonAngle) * (p.radius * 2.1),
+                            Math.sin(moonAngle * 0.6) * 0.4,
+                            Math.sin(moonAngle) * (p.radius * 2.1)
+                        );
+                        p.moon.rotation.y += 0.01;
+                    }
+                });
+
+                // Медленное движение пояса астероидов и звездного купола
+                astPoints.rotation.y += 0.0005;
+                starField.rotation.y += 0.00015;
+
+                // Если выбран конкретный объект, привязываем цель камеры к его координатам
+                if (focusedKey && planetObjects[focusedKey]) {
+                    if (focusedKey === 'sun') {
+                        targetLookAt.set(0, 0, 0);
+                    } else {
+                        targetLookAt.copy(planetObjects[focusedKey].pivot.position);
+                    }
+                }
+
+                // Нежный автоматический дрейф камеры, когда пользователь не тянет экран
+                if (!isDragging) {
+                    targetTheta += delta * 0.055;
+                }
+
+                // Плавная интерполяция камеры
+                camTheta += (targetTheta - camTheta) * 0.07;
+                camPhi += (targetPhi - camPhi) * 0.07;
+                currentRadius += (targetRadius - currentRadius) * 0.06;
+                currentLookAt.lerp(targetLookAt, 0.08);
+
+                camera.position.x = currentLookAt.x + currentRadius * Math.sin(camPhi) * Math.cos(camTheta);
+                camera.position.y = currentLookAt.y + currentRadius * Math.cos(camPhi);
+                camera.position.z = currentLookAt.z + currentRadius * Math.sin(camPhi) * Math.sin(camTheta);
+                camera.lookAt(currentLookAt);
+
+                renderer.render(scene, camera);
+            }
+
+            // Адаптация под поворот экрана и изменение размеров окна
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                if (!focusedKey) {
+                    targetRadius = window.innerWidth < 768 ? 132 : 98;
+                }
+            });
+
+            animate();
+        });
+    </script>
+</body>
+</html>
