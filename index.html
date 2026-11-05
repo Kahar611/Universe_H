@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Моя Вселенная — Хадия 💖</title>
+    <title>Моя Вселенная — Хадия 🤎</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,12 +97,25 @@
             font-weight: 400;
             letter-spacing: 0.08em;
             cursor: pointer;
-            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
-            will-change: transform;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease, border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+            will-change: transform, opacity;
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+        }
+
+        /* Полное скрытие плавающих слов при приближении к планете, чтобы они не мешались */
+        body.planet-focused .nickname-pill {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: scale(0.75) !important;
+        }
+
+        body.planet-focused #center-hero {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: scale(0.92);
         }
 
         @media (min-width: 768px) {
@@ -200,34 +213,34 @@
     <div class="vignette"></div>
 
     <!-- Парящие интерактивные ласковые прозвища -->
-    <button class="nickname-pill p-pos-1" data-target="venus" data-nick="Любимка" data-planet="Венера — Звезда Утренней Любви" data-msg="Ты сияешь ярче любой звезды на небосводе, моя нежная любимка. Каждое утро начинается с мысли о тебе.">
+    <button class="nickname-pill p-pos-1" data-target="venus" data-nick="Любимка 🤎" data-planet="Венера — Звезда Утренней Любви" data-msg="Ты сияешь ярче любой звезды на небосводе, моя нежная любимка. Каждое утро начинается с мысли о тебе 🤎">
         <span class="pill-dot" style="color: #ffd166; background: #ffd166;"></span>
-        <span>любимка</span>
+        <span>любимка 🤎</span>
     </button>
 
-    <button class="nickname-pill p-pos-2" data-target="earth" data-nick="Жаным" data-planet="Земля — Наш Живой Мир" data-msg="Жаным, ты — моя душа, мой воздух и мой дом. Среди миллиардов галактик моё сердце бьётся только ради тебя.">
+    <button class="nickname-pill p-pos-2" data-target="earth" data-nick="Жаным 🤎" data-planet="Земля — Наш Живой Мир" data-msg="Жаным, ты — моя душа, мой воздух и мой дом. Среди миллиардов галактик моё сердце бьётся только ради тебя 🤎">
         <span class="pill-dot" style="color: #4cc9f0; background: #4cc9f0;"></span>
-        <span>жаным</span>
+        <span>жаным ☀️</span>
     </button>
 
-    <button class="nickname-pill p-pos-3" data-target="jupiter" data-nick="Какашечка" data-planet="Юпитер — Гигантское Сердце" data-msg="Даже когда ты вредничаешь, моя сладкая какашечка, моя любовь к тебе больше самой огромной планеты во Вселенной!">
+    <button class="nickname-pill p-pos-3" data-target="jupiter" data-nick="Какашечка 🤎" data-planet="Юпитер — Гигантское Сердце" data-msg="Даже когда ты вредничаешь, моя сладкая какашечка 🤎, моя любовь к тебе больше самой огромной планеты во Вселенной!">
         <span class="pill-dot" style="color: #f4a261; background: #f4a261;"></span>
-        <span>какашечка</span>
+        <span>какашечка 🤎</span>
     </button>
 
-    <button class="nickname-pill p-pos-4" data-target="saturn" data-nick="Симпапулька" data-planet="Сатурн — Властелин Колец" data-msg="Моя ненаглядная симпапулька, твоя красота завораживает сильнее бриллиантовых колец Сатурна.">
+    <button class="nickname-pill p-pos-4" data-target="saturn" data-nick="Симпапулька 🤎" data-planet="Сатурн — Властелин Колец" data-msg="Моя ненаглядная симпапулька, твоя красота завораживает сильнее бриллиантовых колец Сатурна 🤎">
         <span class="pill-dot" style="color: #f9c74f; background: #f9c74f;"></span>
-        <span>симпапулька</span>
+        <span>симпапулька 🌸</span>
     </button>
 
-    <button class="nickname-pill p-pos-5" data-target="sun" data-nick="Любимая" data-planet="Солнце — Центр Моей Жизни" data-msg="Любимая моя Хадия, как все планеты вращаются вокруг Солнца, так и весь мой мир крутится вокруг твоей улыбки.">
+    <button class="nickname-pill p-pos-5" data-target="sun" data-nick="Любимая 🤎" data-planet="Солнце — Центр Моей Жизни" data-msg="Любимая моя Хадия, как все планеты вращаются вокруг Солнца, так и весь мой мир крутится вокруг твоей улыбки 🤎">
         <span class="pill-dot" style="color: #ff5d8f; background: #ff5d8f;"></span>
-        <span>любимая</span>
+        <span>любимая ✨</span>
     </button>
 
-    <button class="nickname-pill p-pos-6" data-target="neptune" data-nick="Көтенім" data-planet="Нептун — Океан Нежности" data-msg="Көтенім моя сладкая, моя любовь к тебе глубока и бесконечна, как сапфировые космические океаны.">
+    <button class="nickname-pill p-pos-6" data-target="neptune" data-nick="Көтенім 🤎" data-planet="Нептун — Океан Нежности" data-msg="Көтенім моя сладкая, моя любовь к тебе глубока и бесконечна, как сапфировые космические океаны 🤎">
         <span class="pill-dot" style="color: #72efdd; background: #72efdd;"></span>
-        <span>көтенім</span>
+        <span>көтенім 🪐</span>
     </button>
 
     <!-- Основной UI Слой -->
@@ -236,25 +249,25 @@
         <div class="flex justify-between items-center w-full max-w-6xl mx-auto z-20">
             <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-pink-200/80 tracking-widest uppercase">
                 <span class="w-2 h-2 rounded-full bg-pink-400 animate-ping"></span>
-                <span>Живая 3D Вселенная</span>
+                <span>Живая 3D Вселенная 🤎</span>
             </div>
 
-            <button id="reset-cam-btn" class="pointer-events-auto hidden items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/20 hover:bg-pink-500/35 border border-pink-300/40 text-xs md:text-sm text-pink-100 transition">
-                <span>✦ Общий вид системы</span>
+            <button id="reset-cam-btn" class="pointer-events-auto hidden items-center gap-2 px-4 py-2 rounded-full bg-pink-500/25 hover:bg-pink-500/40 border border-pink-300/50 text-xs md:text-sm text-white font-medium shadow-lg transition">
+                <span>← Вернуться ко всей Вселенной</span>
             </button>
         </div>
 
         <!-- Центральное послание -->
-        <div id="center-hero" class="my-auto text-center px-3 transition-opacity duration-500">
+        <div id="center-hero" class="my-auto text-center px-3 transition-all duration-500">
             <p class="text-xs md:text-sm uppercase tracking-[0.35em] text-pink-200/75 mb-2 font-light">
                 Среди миллиардов звёзд и галактик
             </p>
             <h1 class="hero-title text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold leading-tight">
                 Моя Вселенная — это ты,<br>
-                <span class="khadiya-gradient italic font-bold">Хадия 💖</span>
+                <span class="khadiya-gradient italic font-bold">Хадия</span> <span>🤎</span>
             </h1>
             <p class="mt-3 md:mt-4 text-xs sm:text-sm md:text-base text-white/75 max-w-lg mx-auto font-light leading-relaxed">
-                Вращай космос пальцем или мышкой и нажимай на ласковые слова, чтобы перелететь к планетам нашей любви
+                Вращай космос пальцем или мышкой и нажимай на ласковые слова, чтобы перелететь к планетам нашей любви 🤎
             </p>
         </div>
 
@@ -266,11 +279,14 @@
                     Солнце — Центр Моей Жизни
                 </div>
                 <h2 id="card-nick-title" class="hero-title text-3xl md:text-4xl text-pink-200 italic font-semibold mb-2">
-                    Любимая Хадия
+                    Любимая Хадия 🤎
                 </h2>
-                <p id="card-love-msg" class="text-sm md:text-base text-white/90 font-light leading-relaxed">
+                <p id="card-love-msg" class="text-sm md:text-base text-white/90 font-light leading-relaxed mb-4">
                     Как все планеты вращаются вокруг Солнца, так и весь мой мир крутится вокруг твоей улыбки.
                 </p>
+                <button id="card-back-btn" class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-xs uppercase tracking-widest text-pink-100 transition">
+                    <span>← Показать все слова</span>
+                </button>
             </div>
         </div>
     </div>
@@ -802,6 +818,41 @@
                 planetMesh.rotation.z = p.tilt;
                 pivotGroup.add(planetMesh);
 
+                // Отдельный вращающийся слой облаков для Земли
+                let cloudMesh = null;
+                if (p.key === 'earth') {
+                    const cCanvas = document.createElement('canvas');
+                    cCanvas.width = 512;
+                    cCanvas.height = 256;
+                    const cCtx = cCanvas.getContext('2d');
+                    const cImg = cCtx.createImageData(512, 256);
+                    for (let y = 0; y < 256; y++) {
+                        const v = y / 256;
+                        for (let x = 0; x < 512; x++) {
+                            const u = x / 512;
+                            const idx = (y * 512 + x) * 4;
+                            const angle = u * Math.PI * 2;
+                            const n = fbm(Math.cos(angle) * 2.5 + 3.1, Math.sin(angle) * 2.5 + v * 4.5, 4);
+                            const alpha = n > 0.52 ? Math.min(220, (n - 0.52) * 650) : 0;
+                            cImg.data[idx] = 255;
+                            cImg.data[idx + 1] = 255;
+                            cImg.data[idx + 2] = 255;
+                            cImg.data[idx + 3] = alpha;
+                        }
+                    }
+                    cCtx.putImageData(cImg, 0, 0);
+                    const cloudTex = new THREE.CanvasTexture(cCanvas);
+                    const cGeo = new THREE.SphereGeometry(p.radius * 1.015, 40, 40);
+                    const cMat = new THREE.MeshPhongMaterial({
+                        map: cloudTex,
+                        transparent: true,
+                        opacity: 0.75,
+                        depthWrite: false
+                    });
+                    cloudMesh = new THREE.Mesh(cGeo, cMat);
+                    pivotGroup.add(cloudMesh);
+                }
+
                 // Добавление атмосферного свечения Френеля
                 if (p.atmo) {
                     const atmoMesh = createAtmosphereMesh(p.radius, p.atmo, p.atmoInt);
@@ -870,6 +921,7 @@
                 planetObjects[p.key] = {
                     pivot: pivotGroup,
                     mesh: planetMesh,
+                    clouds: cloudMesh,
                     moon: moonMesh,
                     radius: p.radius,
                     dist: p.dist,
@@ -1029,10 +1081,10 @@
             const cardLoveMsg = document.getElementById('card-love-msg');
             const resetCamBtn = document.getElementById('reset-cam-btn');
             const closeCardBtn = document.getElementById('close-card-btn');
-            const centerHero = document.getElementById('center-hero');
+            const cardBackBtn = document.getElementById('card-back-btn');
 
             function spawnStardustHearts(x, y) {
-                const symbols = ['💖', '✨', '💗', '🌸', '💫'];
+                const symbols = ['🤎', '🤎', '✨', '🤎', '💫', '❤️'];
                 for (let i = 0; i < 12; i++) {
                     const el = document.createElement('div');
                     el.className = 'burst-heart';
@@ -1056,17 +1108,19 @@
                 if (!targetObj) return;
 
                 focusedKey = key;
-                targetRadius = key === 'sun' ? targetObj.radius * 3.1 : targetObj.radius * 4.2;
+                targetRadius = key === 'sun' ? targetObj.radius * 3.1 : targetObj.radius * 4.0;
                 targetPhi = 1.28;
 
                 cardPlanetTag.textContent = planetTitle;
-                cardNickTitle.textContent = `${nick}, моя Хадия 💖`;
+                cardNickTitle.textContent = `${nick}, моя Хадия`;
                 cardLoveMsg.textContent = msg;
+
+                // Скрываем все остальные плавающие слова и заголовок, чтобы ничего не мешало обзору планеты
+                document.body.classList.add('planet-focused');
 
                 loveCard.classList.remove('hidden-card');
                 resetCamBtn.classList.remove('hidden');
                 resetCamBtn.classList.add('flex');
-                centerHero.style.opacity = isMobile ? '0.18' : '0.35';
             }
 
             function resetOverview() {
@@ -1075,10 +1129,12 @@
                 targetPhi = 1.08;
                 targetLookAt.set(0, 0, 0);
 
+                // Возвращаем плавающие слова обратно на экран
+                document.body.classList.remove('planet-focused');
+
                 loveCard.classList.add('hidden-card');
                 resetCamBtn.classList.add('hidden');
                 resetCamBtn.classList.remove('flex');
-                centerHero.style.opacity = '1';
                 pills.forEach(p => p.classList.remove('active-pill'));
             }
 
@@ -1103,6 +1159,7 @@
 
             resetCamBtn.addEventListener('click', resetOverview);
             closeCardBtn.addEventListener('click', resetOverview);
+            cardBackBtn.addEventListener('click', resetOverview);
 
             // 10. ГЛАВНЫЙ ЦИКЛ АНИМАЦИИ (60 FPS)
             const clock = new THREE.Clock();
@@ -1136,6 +1193,11 @@
 
                     // Осевое вращение планеты
                     p.mesh.rotation.y += p.rotSpeed;
+
+                    // Независимое вращение облачного слоя Земли
+                    if (p.clouds) {
+                        p.clouds.rotation.y += p.rotSpeed * 1.25;
+                    }
 
                     // Вращение Луны вокруг Земли
                     if (p.moon) {
